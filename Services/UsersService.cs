@@ -4,7 +4,7 @@ using MongoDB.Driver;
 
 namespace DotnetApi.Services;
 
-public class UsersService
+public class UsersService : IUsersService
 {
     private readonly IMongoCollection<User> _usersCollection;
 
@@ -20,18 +20,18 @@ public class UsersService
             userDatabaseSettings.Value.UsersCollectionName);
     }
 
-    public async Task<List<User>> GetAsync() =>
+    public async Task<IReadOnlyCollection<User>> GetUsersAsync() =>
         await _usersCollection.Find(_ => true).ToListAsync();
 
-    public async Task<User?> GetAsync(string id) =>
+    public async Task<User?> GetUserAsync(string id) =>
         await _usersCollection.Find(user => user.Id == id).FirstOrDefaultAsync();
 
-    public async Task CreateAsync(User newUser) =>
+    public async Task CreateUserAsync(User newUser) =>
         await _usersCollection.InsertOneAsync(newUser);
 
-    public async Task UpdateAsync(string id, User updatedUser) =>
+    public async Task UpdateUserAsync(string id, User updatedUser) =>
         await _usersCollection.ReplaceOneAsync(user => user.Id == id, updatedUser);
 
-    public async Task RemoveAsync(string id) =>
+    public async Task RemoveUserAsync(string id) =>
         await _usersCollection.DeleteOneAsync(user => user.Id == id);
 }

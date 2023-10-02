@@ -4,23 +4,23 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DotnetApi.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
+// [ApiController]
+[Route("api/users")]
 public class UsersController : ControllerBase
 {
-    private readonly UsersService _usersService;
+    private readonly IUsersService _usersService;
 
-    public UsersController(UsersService usersService) =>
+    public UsersController(IUsersService usersService) =>
         _usersService = usersService;
 
     [HttpGet]
-    public async Task<List<User>> Get() =>
-        await _usersService.GetAsync();
+    public async Task<IReadOnlyCollection<User>> GetUsersAsync() =>
+        await _usersService.GetUsersAsync();
 
     [HttpGet("{id:length(24)}")]
-    public async Task<ActionResult<User>> Get(string id)
+    public async Task<ActionResult<User>> GetUserAsync(string id)
     {
-        var user = await _usersService.GetAsync(id);
+        var user = await _usersService.GetUserAsync(id);
 
         if (user is null)
         {
@@ -31,22 +31,22 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Post(User newUser)
+    public async Task<ActionResult<User>> PostUserAsync(User newUser)
     {
-        await _usersService.CreateAsync(newUser);
+        await _usersService.CreateUserAsync(newUser);
 
         return CreatedAtAction(
-            nameof(Get),
+            null, // nameof(Get)
             new { id = newUser.Id },
             newUser);
     }
 
     [HttpPut("{id:length(24)}")]
-    public async Task<IActionResult> Update(
+    public async Task<ActionResult> UpdateUserAsync(
         string id,
         User updatedUser)
     {
-        var user = await _usersService.GetAsync(id);
+        var user = await _usersService.GetUserAsync(id);
 
         if (user is null)
         {
@@ -56,7 +56,7 @@ public class UsersController : ControllerBase
         updatedUser.Id = user.Id;
 
         await _usersService
-        .UpdateAsync(
+        .UpdateUserAsync(
             id,
             updatedUser);
 
@@ -64,16 +64,16 @@ public class UsersController : ControllerBase
     }
 
     [HttpDelete("{id:length(24)}")]
-    public async Task<IActionResult> Delete(string id)
+    public async Task<ActionResult> DeleteUserAsync(string id)
     {
-        var user = await _usersService.GetAsync(id);
+        var user = await _usersService.GetUserAsync(id);
 
         if (user is null)
         {
             return NotFound();
         }
 
-        await _usersService.RemoveAsync(id);
+        await _usersService.RemoveUserAsync(id);
 
         return NoContent();
     }
